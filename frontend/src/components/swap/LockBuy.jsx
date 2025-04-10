@@ -21,7 +21,7 @@ const LockBuy = () => {
   const [useRawSellPrice, setUseRawSellPrice] = useState(true); // Toggle for price format - default true for USDT
   const [loading, setLoading] = useState(false);
 
-  const { lockBuy, isConnected, isBaseSepolia, switchToBaseSepolia, account } = useBlockchain();
+  const { lockBuy, isConnected, isCorrectNetwork, switchToCorrectNetwork, account } = useBlockchain();
 
   // Generate hashed secret whenever secret changes
   useEffect(() => {
@@ -106,12 +106,6 @@ const LockBuy = () => {
     
     if (!isConnected) {
       alert("Please connect your wallet first");
-      return;
-    }
-    
-    if (!isBaseSepolia()) {
-      alert("Please switch to Sepolia network");
-      await switchToBaseSepolia();
       return;
     }
     

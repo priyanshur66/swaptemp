@@ -21,7 +21,7 @@ const Unlock = () => {
   });
   const [lastTransaction, setLastTransaction] = useState(null);
 
-  const { unlock, isConnected, isBaseSepolia, switchToBaseSepolia } = useBlockchain();
+  const { unlock, isConnected, isCorrectNetwork, switchToCorrectNetwork } = useBlockchain();
 
   const copyToClipboard = (text, field) => {
     if (!text) return;
@@ -41,12 +41,6 @@ const Unlock = () => {
     
     if (!isConnected) {
       alert("Please connect your wallet first");
-      return;
-    }
-    
-    if (!isBaseSepolia()) {
-      alert("Please switch to Sepolia network");
-      await switchToBaseSepolia();
       return;
     }
     

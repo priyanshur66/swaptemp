@@ -17,7 +17,7 @@ const LockSell = () => {
   const [buyLockId, setBuyLockId] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const { lockSell, isConnected, isBaseSepolia, switchToBaseSepolia } = useBlockchain();
+  const { lockSell, isConnected, isCorrectNetwork, switchToCorrectNetwork } = useBlockchain();
 
 
 
@@ -26,12 +26,6 @@ const LockSell = () => {
     
     if (!isConnected) {
       alert("Please connect your wallet first");
-      return;
-    }
-    
-    if (!isBaseSepolia()) {
-      alert("Please switch to Sepolia network");
-      await switchToBaseSepolia();
       return;
     }
     

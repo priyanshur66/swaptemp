@@ -1,10 +1,42 @@
 // Import ABI and address from contract files
-import AtomicSwapERC20Abi from '../../contract/AtomicSwapERC20-abi.json';
-import AtomicSwapERC20Address from '../../contract/AtomicSwapERC20-address.json';
+let swapAbi, swapAddress, networkConfig;
+
+// Try to load from main contract folder first, fall back to sample
+try {
+	// Dynamic imports for contract files
+	const mainContractAbi = require('../../contract/AtomicSwapERC20-abi.json');
+	const mainContractAddress = require('../../contract/AtomicSwapERC20-address.json');
+	
+	swapAbi = mainContractAbi;
+	swapAddress = mainContractAddress.address;
+	networkConfig = { useMetaMaskNetwork: true }; // Use whatever network user's MetaMask is connected to
+	
+	console.log('Using contract from main contract folder');
+} catch (error) {
+	// Fall back to contract-sample if main contract folder files are not available
+	try {
+		const sampleContractAbi = require('../../contract-sample/AtomicSwapERC20-abi.json');
+		const sampleContractAddress = require('../../contract-sample/AtomicSwapERC20-address.json');
+		
+		swapAbi = sampleContractAbi;
+		swapAddress = sampleContractAddress.address;
+		networkConfig = { 
+			useMetaMaskNetwork: false,
+			network: sampleContractAddress.network 
+		};
+		
+		console.log(`Using contract from sample folder with network: ${sampleContractAddress.network}`);
+	} catch (sampleError) {
+		console.error('Failed to load contract from both main and sample folders:', sampleError);
+		// Provide fallback values to prevent app from crashing
+		swapAbi = [];
+		swapAddress = '0x0000000000000000000000000000000000000000';
+		networkConfig = { useMetaMaskNetwork: true };
+	}
+}
 
 // Export the contract ABI and address
-export const swapAbi = AtomicSwapERC20Abi;
-export const swapAddress = AtomicSwapERC20Address.address;
+export { swapAbi, swapAddress, networkConfig };
 
 // ERC20 ABI for interacting with ERC20 tokens
 export const erc20Abi = [

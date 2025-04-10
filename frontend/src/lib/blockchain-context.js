@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import { swapAbi, swapAddress, erc20Abi } from './contractrefs.js';
+import { swapAbi, swapAddress, erc20Abi, networkConfig } from './contractrefs.js';
 import { useToast } from '@/components/ui/use-toast';
 
 const BlockchainContext = createContext();
@@ -89,6 +89,21 @@ export function BlockchainProvider({ children }) {
         const provider = new ethers.BrowserProvider(window.ethereum);
         const network = await provider.getNetwork();
         setChainId(network.chainId);
+        
+        // Check if the correct network is being used based on networkConfig
+        if (!networkConfig.useMetaMaskNetwork) {
+          if (!isCorrectNetwork()) {
+            toast({
+              title: "Wrong Network",
+              description: `Please switch to ${networkConfig.network} network`,
+              variant: "destructive",
+            });
+            
+            // Prompt to switch network
+            await switchToCorrectNetwork();
+            return false;
+          }
+        }
         
         const accounts = await provider.send("eth_requestAccounts", []);
         const signer = await provider.getSigner();
@@ -836,18 +851,49 @@ export function BlockchainProvider({ children }) {
     }
   };
 
-  // Check if Sepolia network
-  const isBaseSepolia = () => {
-    return chainId && chainId === 11155111n; // Sepolia testnet chainId
+  // Check if the correct network is used
+  const isCorrectNetwork = () => {
+    if (networkConfig.useMetaMaskNetwork) {
+      return true; // When using the main contract folder, allow any network MetaMask is connected to
+    } else {
+      // When using the sample contract, check if MetaMask is connected to the specified network
+      if (networkConfig.network === 'sepolia') {
+        return chainId && chainId.toString() === '11155111';
+      } else if (networkConfig.network === 'mainnet') {
+        return chainId && chainId.toString() === '1';
+      } else if (networkConfig.network === 'goerli') {
+        return chainId && chainId.toString() === '5';
+      }
+      // Add more network conditions as needed
+      return false;
+    }
   };
 
-  const switchToBaseSepolia = async () => {
-    if (!window.ethereum) return;
+  const switchToCorrectNetwork = async () => {
+    if (!window.ethereum || networkConfig.useMetaMaskNetwork) return;
     
+    try {
+      if (networkConfig.network === 'sepolia') {
+        await switchToNetwork('0xaa36a7', 'Sepolia', 'ETH', 18, 
+          ['https://sepolia.infura.io/v3/'], ['https://sepolia.etherscan.io']);
+      } else if (networkConfig.network === 'mainnet') {
+        await switchToNetwork('0x1', 'Ethereum Mainnet', 'ETH', 18, 
+          ['https://mainnet.infura.io/v3/'], ['https://etherscan.io']);
+      } else if (networkConfig.network === 'goerli') {
+        await switchToNetwork('0x5', 'Goerli', 'ETH', 18, 
+          ['https://goerli.infura.io/v3/'], ['https://goerli.etherscan.io']);
+      }
+      // Add more network switching options as needed
+    } catch (error) {
+      console.error("Error switching network:", error);
+    }
+  };
+
+  const switchToNetwork = async (chainId, chainName, symbol, decimals, rpcUrls, blockExplorerUrls) => {
     try {
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
-        params: [{ chainId: '0xaa36a7' }], // 11155111 in hex
+        params: [{ chainId }],
       });
     } catch (switchError) {
       // This error code indicates that the chain has not been added to MetaMask
@@ -857,20 +903,20 @@ export function BlockchainProvider({ children }) {
             method: 'wallet_addEthereumChain',
             params: [
               {
-                chainId: '0xaa36a7',
-                chainName: 'Sepolia',
+                chainId,
+                chainName,
                 nativeCurrency: {
-                  name: 'ETH',
-                  symbol: 'ETH',
-                  decimals: 18,
+                  name: symbol,
+                  symbol,
+                  decimals,
                 },
-                rpcUrls: ['https://sepolia.infura.io/v3/'],
-                blockExplorerUrls: ['https://sepolia.etherscan.io'],
+                rpcUrls,
+                blockExplorerUrls,
               },
             ],
           });
         } catch (addError) {
-          console.error("Error adding Sepolia chain:", addError);
+          console.error("Error adding chain:", addError);
         }
       }
     }
@@ -1279,8 +1325,8 @@ export function BlockchainProvider({ children }) {
     calculateLockId,
     getLockValue,
     getTokenContract,
-    isBaseSepolia,
-    switchToBaseSepolia,
+    isCorrectNetwork,
+    switchToCorrectNetwork,
     fetchPastEvents,
     refreshEvents
   };

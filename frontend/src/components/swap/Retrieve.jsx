@@ -13,19 +13,13 @@ const Retrieve = () => {
   const [timeout, setTimeout] = useState(3600); // 1 hour in seconds
   const [loading, setLoading] = useState(false);
 
-  const { retrieve, isConnected, isBaseSepolia, switchToBaseSepolia } = useBlockchain();
+  const { retrieve, isConnected, isCorrectNetwork, switchToCorrectNetwork } = useBlockchain();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!isConnected) {
       alert("Please connect your wallet first");
-      return;
-    }
-    
-    if (!isBaseSepolia()) {
-      alert("Please switch to Sepolia network");
-      await switchToBaseSepolia();
       return;
     }
     

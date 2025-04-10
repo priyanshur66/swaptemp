@@ -8,9 +8,7 @@ const WalletConnect = () => {
     isConnected, 
     account, 
     connectWallet, 
-    disconnectWallet, 
-    isBaseSepolia,
-    switchToBaseSepolia
+    disconnectWallet 
   } = useBlockchain();
 
   const formatAddress = (address) => {
@@ -23,13 +21,6 @@ const WalletConnect = () => {
       {isConnected ? (
         <>
           <div className="flex items-center gap-2">
-            <div className={`w-3 h-3 rounded-full ${isBaseSepolia() ? 'bg-green-500' : 'bg-red-500'}`}></div>
-            <span className="text-sm">
-              {isBaseSepolia() ? 'Sepolia' : 'Wrong Network'}
-            </span>
-          </div>
-          
-          <div className="flex items-center gap-2">
             <Button 
               variant="outline" 
               size="sm"
@@ -37,17 +28,6 @@ const WalletConnect = () => {
             >
               {formatAddress(account)}
             </Button>
-            
-            {!isBaseSepolia() && (
-              <Button
-                onClick={switchToBaseSepolia}
-                variant="secondary"
-                size="sm"
-                className="px-3 py-2 h-auto"
-              >
-                Switch Network
-              </Button>
-            )}
             
             <Button
               onClick={disconnectWallet}
