@@ -1,6 +1,6 @@
 // Import ABI and address from contract files
-import AtomicSwapERC20Abi from '../../contract/AtomicSwapERC20-abi.json';
-import AtomicSwapERC20Address from '../../contract/AtomicSwapERC20-address.json';
+import AtomicSwapERC20Abi from '../../contracts/AtomicSwapERC20-abi.json';
+import AtomicSwapERC20Address from '../../contracts/AtomicSwapERC20-address.json';
 
 // Export the contract ABI and address
 export const swapAbi = AtomicSwapERC20Abi;
